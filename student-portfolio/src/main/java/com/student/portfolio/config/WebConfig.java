@@ -14,6 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173") // Default Vite port
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true); // Needed if using sessions/cookies
+                .allowCredentials(false); // JWT is sent in Authorization header
     }
 }

@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import { AuthProvider } from './context/AuthContext'
 import AppNavbar from './components/Navbar'
 import Footer from './components/Footer'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
@@ -34,14 +35,32 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Student Routes */}
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/student/projects/create" element={<CreateProject />} />
-              <Route path="/student/projects" element={<ProjectList />} />
-              <Route path="/student/projects/:id" element={<ProjectProgress />} />
-              <Route path="/student/portfolio" element={<Portfolio />} />
+              <Route
+                path="/student/dashboard"
+                element={<ProtectedRoute allowedRoles={["ROLE_STUDENT"]}><StudentDashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/student/projects/create"
+                element={<ProtectedRoute allowedRoles={["ROLE_STUDENT"]}><CreateProject /></ProtectedRoute>}
+              />
+              <Route
+                path="/student/projects"
+                element={<ProtectedRoute allowedRoles={["ROLE_STUDENT"]}><ProjectList /></ProtectedRoute>}
+              />
+              <Route
+                path="/student/projects/:id"
+                element={<ProtectedRoute allowedRoles={["ROLE_STUDENT"]}><ProjectProgress /></ProtectedRoute>}
+              />
+              <Route
+                path="/student/portfolio"
+                element={<ProtectedRoute allowedRoles={["ROLE_STUDENT"]}><Portfolio /></ProtectedRoute>}
+              />
 
               {/* Admin Routes */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route
+                path="/admin/dashboard"
+                element={<ProtectedRoute allowedRoles={["ROLE_ADMIN"]}><AdminDashboard /></ProtectedRoute>}
+              />
             </Routes>
           </div>
           <Footer />

@@ -7,10 +7,13 @@ import com.student.portfolio.entity.User;
 import com.student.portfolio.service.MilestoneService;
 import com.student.portfolio.service.PortfolioService;
 import com.student.portfolio.service.ProjectService;
-import jakarta.servlet.http.HttpSession;
+import com.student.portfolio.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -21,6 +24,8 @@ import java.util.Map;
 @RequestMapping("/api/student")
 public class StudentController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
+
     @Autowired
     private ProjectService projectService;
 
@@ -30,23 +35,31 @@ public class StudentController {
     @Autowired
     private PortfolioService portfolioService;
 
-    // Helper method to check if the session belongs to a student
-    private User getSessionUser(HttpSession session) {
-        User user = (User) session.getAttribute("loggedInUser");
-        if (user != null && "ROLE_STUDENT".equals(user.getRole())) {
-            return user;
+    @Autowired
+    private UserService userService;
+
+    // Helper method to check if the authenticated user is a student
+    private User getAuthenticatedStudent(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
         }
-        return null;
+
+        if (authentication.getAuthorities().stream().noneMatch(authority -> "ROLE_STUDENT".equals(authority.getAuthority()))) {
+            return null;
+        }
+
+        return userService.findByUsername(authentication.getName()).orElse(null);
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> dashboard(HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> dashboard(Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             Map<String, String> err = new HashMap<>();
             err.put("error", "Unauthorized");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
         }
+        logger.debug("Student dashboard accessed username={}", user.getUsername());
         
         List<Project> projects = projectService.getProjectsByUser(user);
         Map<String, Object> response = new HashMap<>();
@@ -57,8 +70,8 @@ public class StudentController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<?> createProject(@RequestBody Project project, HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> createProject(@RequestBody Project project, Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }
@@ -71,8 +84,8 @@ public class StudentController {
     }
 
     @GetMapping("/projects")
-    public ResponseEntity<?> listProjects(HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> listProjects(Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }
@@ -82,8 +95,8 @@ public class StudentController {
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<?> getProjectWithMilestones(@PathVariable Long id, HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> getProjectWithMilestones(@PathVariable Long id, Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }
@@ -103,8 +116,8 @@ public class StudentController {
     }
 
     @PostMapping("/projects/{id}/milestones")
-    public ResponseEntity<?> addMilestone(@PathVariable Long id, @RequestBody Milestone milestone, HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> addMilestone(@PathVariable Long id, @RequestBody Milestone milestone, Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }
@@ -120,8 +133,8 @@ public class StudentController {
     }
 
     @GetMapping("/portfolio")
-    public ResponseEntity<?> getPortfolio(HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> getPortfolio(Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }
@@ -139,8 +152,8 @@ public class StudentController {
     }
 
     @PostMapping("/portfolio")
-    public ResponseEntity<?> savePortfolio(@RequestBody Portfolio portfolioData, HttpSession session) {
-        User user = getSessionUser(session);
+    public ResponseEntity<?> savePortfolio(@RequestBody Portfolio portfolioData, Authentication authentication) {
+        User user = getAuthenticatedStudent(authentication);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Unauthorized"));
         }

@@ -1,5 +1,6 @@
 package com.student.portfolio.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ public class Milestone {
     // Many milestones belong to one project
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonIgnore
     private Project project;
 
     @Column(nullable = false)
