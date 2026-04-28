@@ -29,6 +29,22 @@ The backend can be configured using environment variables:
 The app is container-ready with `Dockerfile`.
 Any Docker-compatible host can deploy it as a single full-stack service.
 
+### Render.com deployment
+
+Render can build and deploy this app remotely using the included `render.yaml` and `Dockerfile`, so you do not need Docker installed locally.
+
+1. Create a new Web Service on Render.
+2. Connect your GitHub repo `FULLL-STACK-PROJECT` and select branch `main`.
+3. Use the existing `render.yaml` file and choose `Docker` as the environment.
+4. Configure the required environment variables in Render:
+   - `DB_URL`
+   - `DB_USERNAME`
+   - `DB_PASSWORD`
+   - `JWT_SECRET`
+   - `MAIL_USERNAME` (optional)
+   - `MAIL_PASSWORD` (optional)
+5. If you want a managed database, create a Render MySQL service and replace the placeholders in `render.yaml`.
+
 For cloud deployment, point the host to the `Dockerfile` and configure a MySQL database service, including the environment variables above.
 
 ## Frontend API Configuration
