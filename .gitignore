@@ -1,0 +1,23 @@
+# Java build output
+**/target/
+*.jar
+*.war
+
+# Node build and dependencies
+**/node_modules/
+**/dist/
+
+# IDE and editor
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Environment files
+.env
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -35,7 +35,12 @@ public class SecurityConfig {
                         .sessionFixation().migrateSession())
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/api", "/api/", "/api/auth/**", "/api/register", "/api/login", "/api/auth/me", "/error").permitAll()
+                    .requestMatchers(
+                        "/", "/index.html", "/favicon.ico", "/manifest.json",
+                        "/assets/**", "/static/**", "/**/*.js", "/**/*.css", "/**/*.html",
+                        "/**/*.svg", "/**/*.png", "/**/*.ico",
+                        "/api", "/api/", "/api/auth/**", "/api/register", "/api/login", "/api/auth/me", "/error"
+                    ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/student/**").hasRole("STUDENT")
                         .anyRequest().authenticated())
